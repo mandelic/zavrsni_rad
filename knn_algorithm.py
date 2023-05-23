@@ -243,15 +243,15 @@ class BallTree:
         elif len(data_array) == 0:
             return
         spread = [np.ptp(data_array[:, i]) for i in range(data_array.shape[1])]
-        max_spread_idx = np.argmax(spread)
-        sorted_indices = np.argsort(data_array[:, max_spread_idx])
-        data_array = data_array[sorted_indices]
-        median_index = len(data_array) // 2 if len(data_array) % 2 == 0 else (len(data_array) - 1) // 2   
+        max_spread_index = np.argmax(spread)
+        data_array = sorted(data_array, key=lambda x: x[max_spread_index])
         centroid = np.mean(data_array, axis = 0)
         ball = Ball(centroid, data_array)
         ballNode = BallNode(ball)
-        ballNode.lt = self.construction(data_array[:median_index])
-        ballNode.rt = self.construction(data_array[median_index:])
+        left = np.array([x for x in data_array if x[max_spread_index] <= centroid[max_spread_index]])
+        right = np.array([x for x in data_array if x[max_spread_index] > centroid[max_spread_index]])
+        ballNode.lt = self.construction(left)
+        ballNode.rt = self.construction(right)
         ball.calculate_radius(self.distance, self.n_dim)
         return ballNode
     
